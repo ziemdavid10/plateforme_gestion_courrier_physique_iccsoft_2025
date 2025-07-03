@@ -1,5 +1,6 @@
-package iccsoft_auth.model;
+package com.example.iccsoft_user.models;
 
+import java.util.Date;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,14 +14,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 
-import java.util.Date;
-import java.util.Set;
+import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "employe")
+@Table(name = "Employé")
 public class Employe {
 
     @Id
@@ -43,7 +42,7 @@ public class Employe {
     private String password;
     // Fonction dans l'entreprise, du type enumération
     private Fonction fonction;
-    
+
     @Enumerated(EnumType.STRING)
     private ERole role;
 
@@ -53,17 +52,8 @@ public class Employe {
     private String adresse;
     private Long telephone;
     private String entreprise;
-    // Département de l'employé dans l'entreprise, du type énumération
+
     private Department department;
-
-    // public String getUsername() {
-    //     return username;
-       
-    // }
-
-    public void setRoles(Set<String> roles) {
-        this.role = role;
-    }
 
     @PrePersist
     protected void onCreate() {
@@ -74,7 +64,8 @@ public class Employe {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = new Date();
-    } 
+    }
+
 }
 
 // Enum for fonction
