@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.iccsoft_courrier.exception.CourrierExceptions;
 import com.example.iccsoft_courrier.models.Courrier;
+import com.example.iccsoft_courrier.models.Courrier.EtatCourrier;
 import com.example.iccsoft_courrier.models.Employe;
+import com.example.iccsoft_courrier.models.PieceJointe;
 import com.example.iccsoft_courrier.repositories.CourrierRepository;
+import com.example.iccsoft_courrier.repositories.PieceJointeRepository;
 import com.example.iccsoft_courrier.services.CourrierServices;
 import com.example.iccsoft_courrier.services.OrderServices;
 
@@ -16,48 +19,81 @@ import com.example.iccsoft_courrier.services.OrderServices;
 public class CourrierServicesImpl implements CourrierServices {
     private final CourrierRepository cR;
     private final OrderServices oS;
+    private final PieceJointeRepository pjR;
 
-    public CourrierServicesImpl(CourrierRepository cR, OrderServices oS) {
+    public CourrierServicesImpl(CourrierRepository cR, OrderServices oS, PieceJointeRepository pjR) {
         this.cR = cR;
         this.oS = oS;
+        this.pjR = pjR;
     }
 
     @Override
     public Courrier createCourrier(Courrier courrier, Long employeId) {
         Employe employe = oS.getEmployeFromServiceUser(employeId);
-        courrier.setDestinataires(List.of(employe)); // Assuming you want to set the employee as a recipient
-        // Assuming you want to set the employee's ID or some other attribute
-        // courrier.setEmployeId(employe.getId()); // Uncomment if you have such a field in Courrier
+        courrier.setDestinataires(List.of(employe));
+        // Lorsque je crée un courrier, je peux directement créer autant de pièces
+        // jointes que je veux
+        // et les associer au courrier.
+        if (courrier.getPieceJointes() != null && !courrier.getPieceJointes().isEmpty()) {
+            for (var pieceJointe : courrier.getPieceJointes()) {
+                pieceJointe.setCourrier(courrier); // Associate the piece jointe with the courrier
+                pjR.save(pieceJointe); // Save the piece jointe
+            }
+        }
         return cR.save(courrier);
     }
 
     @Override
-    public List<Courrier> all(){
+    public List<Courrier> all() {
         return cR.findAll();
     }
 
     @Override
     public Courrier updateCourrier(Courrier courrierDetails, Long id) {
         Optional<Courrier> existingCourrier = cR.findById(id);
-        
 
-        if(existingCourrier.isPresent()){
-                Courrier courrier = existingCourrier.get();
-                
-                courrier.setObjet(courrierDetails.getObjet());
-                courrier.setDestinateur(courrierDetails.getDestinateur());
-                courrier.setDescription(courrierDetails.getDescription());
-                courrier.setEtat(courrierDetails.getEtat());
-                courrier.setMiseEnCopies(courrierDetails.getMiseEnCopies());
-                courrier.setDestinataires(courrierDetails.getDestinataires());
-                courrier.setPieceJointes(courrierDetails.getPieceJointes()); 
-                courrier.setDescription(courrierDetails.getDescription());
-                courrier.setStatut(courrierDetails.getStatut());
-        
-            return cR.save(courrier);
-        } else {
-            throw new CourrierExceptions("Courrier with id: " + id + " not found");
+        if (existingCourrier.isPresent()) {
+            Courrier courrier = existingCourrier.get();
+
+            courrier.setObjet(courrierDetails.getObjet());
+            courrier.setDestinateur(courrierDetails.getDestinateur());
+            courrier.setDescription(courrierDetails.getDescription());
+            courrier.setEtat(courrierDetails.getEtat());
+            courrier.setMiseEnCopies(courrierDetails.getMiseEnCopies());
+            courrier.setDestinataires(courrierDetails.getDestinataires());
+            courrier.setPieceJointes(courrierDetails.getPieceJointes());
+            courrier.setDescription(courrierDetails.getDescription());
+            courrier.setStatut(courrierDetails.getStatut());
+            // Lorque je mets à jour un courrier, je peux également mettre à jour les pièces
+            // jointes
+            if (courrierDetails.getPieceJointes() != null && !courrierDetails.getPieceJointes().isEmpty()) {
+                for (var pieceJointe : courrierDetails.getPieceJointes()) {
+                    // Je peux mettre à jour les pièces jointes existantes ou en ajouter de
+                    // nouvelles
+                    // Si la pièce jointe a un ID, on la met à jour, sinon on la crée
+                    if (pieceJointe.getId() != null) {
+                        Optional<PieceJointe> existingPieceJointe = pjR.findById(pieceJointe.getId());
+                        if (existingPieceJointe.isPresent()) {
+                            PieceJointe pj = existingPieceJointe.get();
+                            pj.setNom(pieceJointe.getNom());
+                            pj.setType(pieceJointe.getType());
+                            pj.setDescription(pieceJointe.getDescription());
+                            pjR.save(pj); // Metre à jour la pièce jointe existante
+                        }
+                    } else {
+                        // Si la pièce jointe n'existe pas, on la crée
+                        pieceJointe.setId(null); 
+                        pieceJointe.setCourrier(courrier); 
+                        pjR.save(pieceJointe);
+                    }
+                }
+
+                return cR.save(courrier);
+            } else {
+                throw new CourrierExceptions("Courrier with id: " + id + " not found");
+            }
         }
+        return courrierDetails;
     }
 
     @Override
@@ -65,6 +101,11 @@ public class CourrierServicesImpl implements CourrierServices {
         Optional<Courrier> courrier = cR.findById(id);
         if (courrier.isPresent()) {
             cR.delete(courrier.get());
+            // Supprimer les pièces jointes associées au courrier
+            List<PieceJointe> pieceJointes = pjR.findByCourrierId(id);
+            for (PieceJointe pieceJointe : pieceJointes) {
+                pjR.delete(pieceJointe);
+            }
             return "Courrier with id: " + id + " deleted Successfully";
         }
         throw new CourrierExceptions("Courrier with id: " + id + " not found");
@@ -72,8 +113,33 @@ public class CourrierServicesImpl implements CourrierServices {
 
     @Override
     public Courrier getCourrierById(Long id) {
-        return cR.findById(id).orElseThrow(() -> new RuntimeException("Courrier not found with id: " + id));
+        // En récupérant un courrier par son ID, on peut également récupérer les pièces jointes associées
+        // en utilisant le repository des pièces jointes.
+        // Les pièces jointes sont récupérées par le biais de la relation définie dans la
+        // classe Courrier.
+        Optional<Courrier> courrier = cR.findById(id);
+        if (courrier.isEmpty()) {
+            throw new CourrierExceptions("Courrier with id: " + id + " not found");
+        }
+        // On peut également charger les pièces jointes associées au courrier
+        List<PieceJointe> pieceJointes = pjR.findByCourrierId(id);
+        Courrier c = courrier.get();
+        c.setPieceJointes(pieceJointes); // Associer les pièces jointes au courrier
+        return c;
     }
-    
-    
+
+    @Override
+    public List<Courrier> getCourriersByEtat(EtatCourrier etat) {
+        return cR.findByEtat(etat);
+    }
+
+    @Override
+    public List<Courrier> getCourriersByNumeroOrdre(String numeroOrdre) {
+        return cR.findByNumeroOrdre(numeroOrdre);
+    }
+
+    @Override
+    public List<Courrier> getCourriersByDateCourrier(String dateCourrier) {
+        return cR.findByDateCourrier(dateCourrier);
+    }
 }

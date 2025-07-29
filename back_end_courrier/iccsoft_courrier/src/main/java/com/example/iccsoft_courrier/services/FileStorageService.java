@@ -12,23 +12,21 @@ public interface FileStorageService {
      *
      * @param MultipartFile the file to save
      */
-    void saveFile(MultipartFile file
-    // , byte[] content
-    ) throws IOException;
+    void saveFile(MultipartFile file) throws IOException;
 
     // /**
-    //  * Loads a file from the storage.
-    //  *
-    //  * @param fileName the name of the file to load
-    //  * @return the content of the file as a byte array
-    //  */
+    // * Loads a file from the storage.
+    // *
+    // * @param fileName the name of the file to load
+    // * @return the content of the file as a byte array
+    // */
     File downloadFile(String fileName) throws FileNotFoundException;
 
     // /**
-    //  * Deletes a file from the storage.
-    //  *
-    //  * @param fileName the name of the file to delete
-    //  */
+    // * Deletes a file from the storage.
+    // *
+    // * @param fileName the name of the file to delete
+    // */
     void deleteFile(String fileName) throws FileNotFoundException;
-    
+
 }

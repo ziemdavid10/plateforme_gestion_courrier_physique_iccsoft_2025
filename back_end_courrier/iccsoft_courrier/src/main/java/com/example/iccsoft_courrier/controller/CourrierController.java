@@ -67,9 +67,7 @@ public class CourrierController {
                     .contentLength(fileToDownload.length())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Disposition", "attachment; filename=\"" + fileToDownload.getName() + "\"")
-                    // .body(new InputStreamResource(new FileInputStream(fileToDownload)))
-                    .body(new FileSystemResource(fileToDownload)); // Uncomment if
-                    // .body(new InputStreamResource(Files.newInputStream(fileToDownload.toPath()))); // Adjust as needed for your application;
+                    .body(new FileSystemResource(fileToDownload));
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.SEVERE, "File not found", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

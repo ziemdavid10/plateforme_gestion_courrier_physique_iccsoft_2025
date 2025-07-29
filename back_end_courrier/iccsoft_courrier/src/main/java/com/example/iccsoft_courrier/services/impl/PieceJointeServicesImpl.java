@@ -19,6 +19,12 @@ public class PieceJointeServicesImpl implements PieceJointeServices {
 
     @Override
     public PieceJointe createPieceJointe(PieceJointe pieceJointe) {
+        // Lorsqu'une pièce jointe est créée, elle est associée à un courrier existant.
+        // Assurez-vous que la pièce jointe a un courrier associé avant de la
+        // sauvegarder
+        if (pieceJointe.getCourrier() == null) {
+            throw new RuntimeException("PieceJointe must be associated with a Courrier");
+        }
         return pieceJointeRepository.save(pieceJointe);
     }
 
@@ -50,9 +56,8 @@ public class PieceJointeServicesImpl implements PieceJointeServices {
             PieceJointe pj = existingPieceJointe.get();
             pj.setNom(pieceJointe.getNom());
             pj.setType(pieceJointe.getType());
-            // pj.setChemin(pieceJointe.getChemin());
             pj.setDescription(pieceJointe.getDescription());
-            
+
             return pieceJointeRepository.save(pj);
         }
         throw new RuntimeException("PieceJointe with id: " + id + " not found");
@@ -62,21 +67,4 @@ public class PieceJointeServicesImpl implements PieceJointeServices {
     public List<PieceJointe> getPieceJointesByCourrierId(Long courrierId) {
         return pieceJointeRepository.findByCourrierId(courrierId);
     }
-
-    // Implementation of methods defined in PieceJointeServices interface
-    // This class will handle the business logic related to PieceJointe entities
-
-
-    // @Override
-    // public List<PieceJointe> getPieceJointesByUrlStockage(String urlStockage) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'getPieceJointesByUrlStockage'");
-    // }
-
-    // @Override
-    // public List<PieceJointe> getPieceJointesByDateCreation(String dateCreation) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'getPieceJointesByDateCreation'");
-    // }
-    
 }

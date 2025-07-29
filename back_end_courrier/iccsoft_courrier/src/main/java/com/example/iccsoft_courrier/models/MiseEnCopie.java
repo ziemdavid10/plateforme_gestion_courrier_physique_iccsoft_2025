@@ -5,11 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Data;
-
-// import  com.example.iccsoft_user.models.Employe; // Assuming you have an Employe class in this package
-
 
 @Entity
 @Data
@@ -23,5 +19,4 @@ public class MiseEnCopie extends Employe {
     @ManyToOne
     private Courrier courrier;
 
-    
 }

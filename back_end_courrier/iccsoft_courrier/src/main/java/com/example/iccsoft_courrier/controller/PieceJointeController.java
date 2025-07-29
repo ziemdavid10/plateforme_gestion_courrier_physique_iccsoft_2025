@@ -17,7 +17,7 @@ import com.example.iccsoft_courrier.models.PieceJointe;
 import com.example.iccsoft_courrier.services.PieceJointeServices;
 
 @RestController
-@RequestMapping("/v4/piece-jointe")
+@RequestMapping("/v4/piecejointe")
 public class PieceJointeController {
 
     private final PieceJointeServices pieceJointeServices;

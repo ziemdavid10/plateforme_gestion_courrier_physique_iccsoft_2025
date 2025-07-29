@@ -1,6 +1,5 @@
 package com.example.iccsoft_courrier.dto;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,19 +39,10 @@ public class CourrierDTO {
     @NotNull(message = "La date du courrier doit être spécifiée")
     private String dateCourrier;
 
-    // La date de reception est la date à laquelle le courrier a été reçu. Ce champs
-    // prend par défaut la date du jour.
-    // @NotNull(message = "La date de réception doit être spécifiée")
-    // private String dateReception = LocalDate.now().toString();
-
     @Size(max = 2000, message = "la description ne peut pas dépasser 2000 caractères")
     @Column(nullable = true)
     private String description;
 
-    // Lorsqu'un courrier est reçu, il est marqué comme "RECU" par défaut. Le statut
-    // peut être "RECU", "EN_ATTENTE", "TRAITE", "ARCHIVE". Le statut va évoluer au
-    // fil du temps.
-    // Par exemple, un courrier peut être reçu, puis traité, puis archivé.
     @NotNull(message = "Le statut du courrier doit être spécifié")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -102,6 +92,5 @@ public class CourrierDTO {
     // courrier.
     // Pour la création d'un courrier, il faudra importer un fichier numérique. A ce
     // niveau, le backend devra gérer l'import de fichiers externes.
-    // private byte[] fichier;
 
 }

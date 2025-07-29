@@ -15,10 +15,8 @@ import com.example.iccsoft_courrier.services.FileStorageService;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-    // Implement the methods for file storage here
-    // For example, methods to upload, download, delete files, etc.
-
-    public static final String FILE_STORAGE_PATH = "../../../iccsoft_courrier/Courrier_Telecharge"; // Define your file storage path here
+    public static final String FILE_STORAGE_PATH = "../../../iccsoft_courrier/Courrier_Telecharge"; // lieu de stockage
+                                                                                                    // des fichiers
 
     @Override
     public void saveFile(MultipartFile file) throws IOException {
@@ -35,7 +33,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public File downloadFile(String fileName) throws FileNotFoundException {
-        if(fileName == null || fileName.isEmpty()) {
+        if (fileName == null || fileName.isEmpty()) {
             throw new NullPointerException("File name cannot be null or empty");
         }
         File fileToDownload = new File(FILE_STORAGE_PATH + File.separator + fileName);
@@ -45,24 +43,24 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (!fileToDownload.exists()) {
             throw new FileNotFoundException("File not found: " + fileName);
         }
-        return fileToDownload; // This should return the file resource, adjust as needed for your application
+        return fileToDownload; // retourne le fichier pour téléchargement
     }
 
     @Override
     public void deleteFile(String fileName) throws FileNotFoundException {
-        if(fileName == null || fileName.isEmpty()) {
+        if (fileName == null || fileName.isEmpty()) {
             throw new NullPointerException("File name cannot be null or empty");
-            }
+        }
         File fileToDelete = new File(FILE_STORAGE_PATH + File.separator + fileName);
         if (!Objects.equals(fileToDelete.getParent(), FILE_STORAGE_PATH)) {
             throw new SecurityException("Cannot delete file outside of designated storage path");
-            }
+        }
         if (fileToDelete.exists()) {
             if (!fileToDelete.delete()) {
                 throw new RuntimeException("Failed to delete file: " + fileName);
-                }
+            }
         } else {
             throw new FileNotFoundException("File not found: " + fileName);
-            }
-            }
+        }
+    }
 }

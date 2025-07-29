@@ -11,10 +11,5 @@ import com.example.iccsoft_courrier.models.PieceJointe;
 public interface PieceJointeRepository extends JpaRepository<PieceJointe, Long> {
 
     List<PieceJointe> findByCourrierId(Long courrierId);
-    // Additional query methods can be defined here if needed
-
-    // List<PieceJointe> findByReferenceDocumentId(Long referenceDocumentId);
-
-    // List<PieceJointe> findByEmployeId(Long employeId);
     
 }

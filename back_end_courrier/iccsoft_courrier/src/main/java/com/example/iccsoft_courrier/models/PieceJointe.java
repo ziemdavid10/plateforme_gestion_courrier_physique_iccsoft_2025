@@ -23,11 +23,7 @@ public class PieceJointe {
     private String nom; // Nom de la pièce jointe
 
     @Column(name = "type", nullable = false)
-    private String type; // Type de la pièce jointe (par exemple, PDF, image)
-
-    // En guise de pièce jointe, on peut uploader plusieurs fichiers de differents types
-    // @Column(name = "fichier", nullable = false)
-    // private String fichier;
+    private String type; 
 
     @Column(name = "description", nullable = false)
     private String description;
