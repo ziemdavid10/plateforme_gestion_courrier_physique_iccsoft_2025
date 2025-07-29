@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.iccsoft_user.exception.EmployeExceptions;
 import com.example.iccsoft_user.models.Employe;
 import com.example.iccsoft_user.services.UserServices;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class UserController {
         return new ResponseEntity<>(us.all(), HttpStatus.OK);
     }
 
-    @PostMapping("/adduser")
+    @PostMapping
     public ResponseEntity<Employe> createEmploye(@RequestBody Employe employe) {
         return new ResponseEntity<>(us.createEmploye(employe), HttpStatus.CREATED);
     }
@@ -42,7 +43,7 @@ public class UserController {
         if (updatedEmploye != null){
             return new ResponseEntity<>(updatedEmploye, HttpStatus.OK);
         } else {
-            return ResponseEntity.notFound().build();
+            throw new EmployeExceptions("Employe not found");
         }
     }
 

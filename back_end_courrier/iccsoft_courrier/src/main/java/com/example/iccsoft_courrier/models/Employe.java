@@ -1,4 +1,5 @@
-package com.example.iccsoft_user.models;
+package com.example.iccsoft_courrier.models;
+
 
 import java.util.Date;
 
@@ -10,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -22,7 +22,6 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "Employé")
 public class Employe {
 
     @Id
@@ -72,7 +71,7 @@ public class Employe {
     protected void onUpdate() {
         this.updatedAt = new Date();
     }
-
+    
 }
 
 // Enum for fonction

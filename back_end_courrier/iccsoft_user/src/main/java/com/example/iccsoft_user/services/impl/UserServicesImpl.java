@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.iccsoft_user.exception.EmployeExceptions;
 import com.example.iccsoft_user.models.Employe;
 import com.example.iccsoft_user.repositories.UserRepository;
 import com.example.iccsoft_user.services.UserServices;
@@ -48,7 +49,7 @@ public class UserServicesImpl implements UserServices {
 
             return userRepository.save(employe);
         }
-        return null;
+        throw new EmployeExceptions("Employe with id:\\\" + id + \\\" not found");
     }
 
     @Override
@@ -59,12 +60,12 @@ public class UserServicesImpl implements UserServices {
             userRepository.delete(employe.get());
             return "Employe with id:\" + id + \" deleted Successfully";
         }
-        return "Employe with id:" + id + "not found";
+        throw new EmployeExceptions("Employe with id:\\\" + id + \\\" not found");
     }
 
     @Override
     public Employe getEmployeById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(()-> new EmployeExceptions("Employe with id:\\\" + id + \\\" not found"));
     }
 
 }
