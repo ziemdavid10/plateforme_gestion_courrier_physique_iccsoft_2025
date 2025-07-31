@@ -94,3 +94,7 @@ public class CourrierDTO {
     // niveau, le backend devra gérer l'import de fichiers externes.
 
 }
+
+// A présent j'ai besoin de données pour tester le DTO et le controller; Donne moi des données au format JSON pour le DTO et des exemples de requêtes pour le controller.
+// Voici un exemple de données JSON pour le DTO et des exemples de requêtes pour le controller
+

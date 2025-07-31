@@ -58,7 +58,7 @@ public class UserServicesImpl implements UserServices {
 
         if (employe.isPresent()) {
             userRepository.delete(employe.get());
-            return "Employe with id:\" + id + \" deleted Successfully";
+            return "Employe with id: " + id + " deleted successfully";
         }
         throw new EmployeExceptions("Employe with id:\\\" + id + \\\" not found");
     }
