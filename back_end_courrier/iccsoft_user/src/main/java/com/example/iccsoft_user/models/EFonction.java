@@ -1,12 +1,16 @@
 package com.example.iccsoft_user.models;
 
 public enum EFonction {
+    PDG,
     DG,
     DSI,
+    DRH,
     RH,
     ASSISTANT_DSI,
-    SUPPORT,
-    DEVELOPPEUR,
-    INGENIEUR_LOGICIEL,
+    INGENIEUR_DEVELOPPEUR,
+    INGENIEUR_RESEAUX,
+    INGENIEUR_PROJET,
+    RESPONSABLE_COMMERCIAL,
+    COMMERCIAL,
     
 }

@@ -1,7 +1,11 @@
 package com.example.iccsoft_courrier.models;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -76,4 +80,22 @@ public class Courrier {
     public enum EtatCourrier {
         PUBLIC, PRIVE
     }
+
+
+    public String genererNumeroOrdre(){
+        
+        ConcurrentHashMap<String, AtomicInteger> compteurs = null;
+
+        LocalDate dateActuelle = LocalDate.now();
+        String dataFormatee = dateActuelle.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        AtomicInteger compteur = compteurs.computeIfAbsent(dataFormatee, k -> new AtomicInteger(0));
+
+        int numeroSequentiel = compteur.incrementAndGet();
+
+        numeroOrdre = String.format("%s-%03d", dataFormatee, numeroSequentiel);
+
+        return numeroOrdre;
+    }
+
 }

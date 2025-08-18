@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.iccsoft_user.exception.EmployeExceptions;
 import com.example.iccsoft_user.models.Employe;
 import com.example.iccsoft_user.services.UserServices;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,18 +23,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class UserController {
 
     private final UserServices us;
+    private final PasswordEncoder encoder;
 
-    public UserController(UserServices us) {
+    public UserController(UserServices us, PasswordEncoder encoder) {
         this.us = us;
+        this.encoder = encoder;
     }
+    
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Employe>> getAll() {
         return new ResponseEntity<>(us.all(), HttpStatus.OK);
-    }
+    }  
 
     @PostMapping
     public ResponseEntity<Employe> createEmploye(@RequestBody Employe employe) {
+        // Encoder le mot de passe avant de le sauvegarder
+        if (employe.getPassword() == null || employe.getPassword().isEmpty()) {
+            throw new EmployeExceptions("Password cannot be empty");
+        }
+        employe.setPassword(encoder.encode(employe.getPassword()));
         return new ResponseEntity<>(us.createEmploye(employe), HttpStatus.CREATED);
     }
 

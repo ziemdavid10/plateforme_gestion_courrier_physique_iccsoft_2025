@@ -1,9 +1,8 @@
 package com.example.iccsoft_user.models;
 
 public enum EDepartment {
-    DEVELOPPEMENT_LOGICIEL,
-    RESEAUX,
-    CYBERSECURITE,
-    DATA_IA,
+    DIRECTION_GENERALE,
+    DIRECTION_TECHNIQUE,
+    DIRECTION_COMMERCIALE,
     OTHER
 }

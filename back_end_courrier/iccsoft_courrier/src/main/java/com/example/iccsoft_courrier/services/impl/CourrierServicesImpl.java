@@ -29,6 +29,30 @@ public class CourrierServicesImpl implements CourrierServices {
 
     @Override
     public Courrier createCourrier(Courrier courrier, Long employeId) {
+        // lorsque je crée un courrier, je peux lui associer autant de des destinataires
+        // que je veux
+        // et les destinataires sont des employés de l'entreprise.
+        if (courrier.getDestinataires() == null || courrier.getDestinataires().isEmpty()) {
+            throw new CourrierExceptions("Au moins un destinataire doit être mentionné");
+        }
+        // Vérifier si l'employé existe
+        if (employeId == null) {
+            throw new CourrierExceptions("Employee ID must be provided");
+        }
+        // Récupérer l'employé à partir de l'ID
+        if (!oS.existsById(employeId)) {
+            throw new CourrierExceptions("Employee with ID: " + employeId + " does not exist");
+        }
+        // Associer l'employé aux destinataires du courrier
+        // Ici, on suppose que le courrier a un champ destinataires qui est une liste
+        // d'Employe
+        // On ajoute l'employé récupéré à la liste des destinataires
+        // Si le courrier n'a pas de destinataires, on crée une nouvelle liste
+        if (courrier.getDestinataires() == null || courrier.getDestinataires().isEmpty()) {
+            courrier.setDestinataires(List.of());
+        }
+        // On ajoute l'employé à la liste des destinataires
+        // On suppose que l'employé est déjà récupéré par son ID
         Employe employe = oS.getEmployeFromServiceUser(employeId);
         courrier.setDestinataires(List.of(employe));
         // Lorsque je crée un courrier, je peux directement créer autant de pièces
@@ -40,6 +64,9 @@ public class CourrierServicesImpl implements CourrierServices {
                 pjR.save(pieceJointe); // Save the piece jointe
             }
         }
+        // Générer le numéro d'ordre pour le courrier
+        String numeroOrdre = courrier.genererNumeroOrdre();
+        courrier.setNumeroOrdre(numeroOrdre);
         return cR.save(courrier);
     }
 
@@ -82,8 +109,8 @@ public class CourrierServicesImpl implements CourrierServices {
                         }
                     } else {
                         // Si la pièce jointe n'existe pas, on la crée
-                        pieceJointe.setId(null); 
-                        pieceJointe.setCourrier(courrier); 
+                        pieceJointe.setId(null);
+                        pieceJointe.setCourrier(courrier);
                         pjR.save(pieceJointe);
                     }
                 }
@@ -113,9 +140,11 @@ public class CourrierServicesImpl implements CourrierServices {
 
     @Override
     public Courrier getCourrierById(Long id) {
-        // En récupérant un courrier par son ID, on peut également récupérer les pièces jointes associées
+        // En récupérant un courrier par son ID, on peut également récupérer les pièces
+        // jointes associées
         // en utilisant le repository des pièces jointes.
-        // Les pièces jointes sont récupérées par le biais de la relation définie dans la
+        // Les pièces jointes sont récupérées par le biais de la relation définie dans
+        // la
         // classe Courrier.
         Optional<Courrier> courrier = cR.findById(id);
         if (courrier.isEmpty()) {

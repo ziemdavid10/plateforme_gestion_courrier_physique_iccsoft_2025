@@ -1,13 +1,11 @@
 package iccsoft_auth.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,9 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
 import iccsoft_auth.jwt.AuthEntryPointJwt;
@@ -28,11 +24,13 @@ import iccsoft_auth.services.EmployeDetailsServiceImpl;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Autowired
-    EmployeDetailsServiceImpl employeDetailsServiceImpl;
+    private final EmployeDetailsServiceImpl employeDetailsServiceImpl;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    public SecurityConfig(EmployeDetailsServiceImpl employeDetailsServiceImpl, AuthEntryPointJwt unauthorizedHandler) {
+        this.employeDetailsServiceImpl = employeDetailsServiceImpl;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     @LoadBalanced

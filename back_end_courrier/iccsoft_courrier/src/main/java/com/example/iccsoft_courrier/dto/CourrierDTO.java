@@ -32,7 +32,7 @@ public class CourrierDTO {
     @Size(max = 255, message = "L'objet ne peut pas dépasser 255 caractères")
     private String objet;
 
-    @NotBlank(message = "Le destinataire doit être mentionné")
+    @NotBlank(message = "Le destinateur doit être mentionné")
     @Size(max = 255, message = "Le destinataire ne peut pas dépasser 255 caractères")
     private String destinateur;
 
@@ -53,27 +53,11 @@ public class CourrierDTO {
     @Column(nullable = false)
     private EtatCourrier etat;
 
-    public String GenererNumeroOrdre(){
-        
-        ConcurrentHashMap<String, AtomicInteger> compteurs = null;
-
-        LocalDate dateActuelle = LocalDate.now();
-        String dataFormatee = dateActuelle.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-        AtomicInteger compteur = compteurs.computeIfAbsent(dataFormatee, k -> new AtomicInteger(0));
-
-        int numeroSequentiel = compteur.incrementAndGet();
-
-        numeroOrdre = String.format("%s-%03d", dataFormatee, numeroSequentiel);
-
-        return numeroOrdre;
-    }
-
     @NotBlank(message = "Le numéro d'ordre doit être mentionné")
     @Size(max = 50, message = "Le numéro d'ordre ne peut pas dépasser 50 caractères")
     // Le numéro d'ordre est au format année-num avec année qui représente l'année en cours et num qui est auto-incrément
     @Column(nullable = false, unique = true)
-    private String numeroOrdre = GenererNumeroOrdre() ;
+    private String numeroOrdre;
 
     // Les pièces jointes sont des fichiers associés au courrier, tels que des
     // documents, des images, etc.

@@ -1,11 +1,6 @@
 package iccsoft_auth.controller;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,18 +29,20 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @RequestMapping("/v1/api/auth")
 // @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 public class AuthController {
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final EmployeRepository employeRepository;
+    private final PasswordEncoder encoder;
+    private final JwtUtils jwtUtils;
 
-    @Autowired
-    EmployeRepository employeRepository;
-
-
-    @Autowired
-    PasswordEncoder encoder;
-
-    @Autowired
-    JwtUtils jwtUtils;
+    public AuthController(AuthenticationManager authenticationManager,
+                          EmployeRepository employeRepository,
+                          PasswordEncoder encoder,
+                          JwtUtils jwtUtils) {
+        this.authenticationManager = authenticationManager;
+        this.employeRepository = employeRepository;
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -58,8 +55,7 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         EmployeDetailsImpl userDetails = (EmployeDetailsImpl) authentication.getPrincipal();
-        // String  roles =  userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-        //         .collect(Collectors.joining(","));
+        // Récupérer le rôle de l'utilisateur
         String roles = userDetails.getAuthorities().stream()
                         .findFirst()
                         .map(item -> item.getAuthority())
@@ -91,65 +87,6 @@ public class AuthController {
 
         String strRoles = signUpRequest.getRole();
 
-
-        // Set<String> roles = new HashSet<>();
-        // if (strRoles == null) {
-        //     String userRole = employeRepository.findByRole(ERole.EMPLOYE)
-        //             .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
-        //                 @Override
-        //                 public RuntimeException get() {
-        //                     return new RuntimeException("Error: Role is not found.");
-        //                 }
-        //             });
-        //     roles.add(userRole);
-        // } else {
-        //         String roleName = strRoles.toLowerCase();
-        //         switch (roleName) {
-        //             case "administrateur":
-        //                 String adminRole = employeRepository.findByRole(ERole.ADMINISTRATEUR)
-        //                         .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
-        //                 @Override
-        //                 public RuntimeException get() {
-        //                     return new RuntimeException("Error: Role is not found.");
-        //                 }
-        //             });
-        //                 roles.add(adminRole);
-
-        //                 break;
-        //             case "secretaire":
-        //                 String secretaireRole = employeRepository.findByRole(ERole.SECRETAIRE)
-        //                         .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
-        //                 @Override
-        //                 public RuntimeException get() {
-        //                     return new RuntimeException("Error: Role is not found.");
-        //                 }
-        //             });
-        //                 roles.add(secretaireRole);
-        //                 break;
-
-        //             case "employe":
-        //                 String employeRole = employeRepository.findByRole(ERole.EMPLOYE)
-        //                         .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
-        //                 @Override
-        //                 public RuntimeException get() {
-        //                     return new RuntimeException("Error: Role is not found.");
-        //                 }
-        //             });
-        //                 roles.add(employeRole);
-        //                 break;
-
-        //             default:
-        //                 String userRole = employeRepository.findByRole(ERole.EMPLOYE)
-        //                         .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
-        //                 @Override
-        //                 public RuntimeException get() {
-        //                     return new RuntimeException("Error: Role is not found.");
-        //                 }
-        //             });
-        //                 roles.add(userRole);
-        //         }
-        //     }
-        // employe.setRoles(roles);
         if (strRoles == null) {
             employe.setRole(ERole.EMPLOYE);
         } else {
