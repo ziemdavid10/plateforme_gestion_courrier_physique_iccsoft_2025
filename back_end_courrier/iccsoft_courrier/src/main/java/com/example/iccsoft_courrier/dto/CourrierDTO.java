@@ -71,6 +71,12 @@ public class CourrierDTO {
 
     // Les destinataires sont les personnes ou entités qui reçoivent le courrier.
     private List<Employe> destinataires;
+    
+    // Employee ID for courrier creation
+    private Long employeId;
+    
+    // Date d'entrée
+    private String dateEntree;
 
     // Nous préciserons un attribut pour le stockage du fichier numérique associé au
     // courrier.

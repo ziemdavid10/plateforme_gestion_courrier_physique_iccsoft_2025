@@ -2,12 +2,17 @@ package com.example.iccsoft_courrier.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.iccsoft_courrier.exception.CourrierExceptions;
 import com.example.iccsoft_courrier.models.Courrier;
 import com.example.iccsoft_courrier.services.CourrierServices;
 import com.example.iccsoft_courrier.services.FileStorageService;
+import com.example.iccsoft_courrier.validation.CourrierValidator;
+
+import java.util.List;
 
 import java.util.List;
 
@@ -31,6 +36,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/v3/courrier")
+@CrossOrigin(origins = "*")
 public class CourrierController {
 
     private final CourrierServices courrierServices;
@@ -78,17 +84,41 @@ public class CourrierController {
     }
 
     @PostMapping
-    public ResponseEntity<Courrier> createCourrier(@RequestBody Courrier courrier, @RequestParam Long employeId) {
-        return new ResponseEntity<>(courrierServices.createCourrier(courrier, employeId), HttpStatus.CREATED);
+    public ResponseEntity<?> createCourrier(@RequestBody Courrier courrier, @RequestParam Long employeId, @RequestHeader(value = "X-User-Role", defaultValue = "EMPLOYE") String userRole) {
+        if (!"SECRETAIRE".equals(userRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé: Seuls les secrétaires peuvent créer des courriers");
+        }
+        
+        // Validation des champs requis
+        CourrierValidator validator = new CourrierValidator();
+        List<String> validationErrors = validator.validate(courrier);
+        if (!validationErrors.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Champs requis manquants: " + String.join(", ", validationErrors));
+        }
+        
+        try {
+            Courrier created = courrierServices.createCourrier(courrier, employeId);
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la création: " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Courrier> updateCourrier(@RequestBody Courrier courrier, @PathVariable Long id) {
-        Courrier updatedCourrier = courrierServices.updateCourrier(courrier, id);
-        if (updatedCourrier != null){
-            return new ResponseEntity<>(updatedCourrier, HttpStatus.OK);
-        } else {
-            throw new CourrierExceptions("Employe not found");
+    public ResponseEntity<?> updateCourrier(@RequestBody Courrier courrier, @PathVariable Long id, @RequestHeader(value = "X-User-Role", defaultValue = "EMPLOYE") String userRole) {
+        if (!"SECRETAIRE".equals(userRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé: Seuls les secrétaires peuvent modifier des courriers");
+        }
+        
+        try {
+            Courrier updatedCourrier = courrierServices.updateCourrier(courrier, id);
+            if (updatedCourrier != null){
+                return new ResponseEntity<>(updatedCourrier, HttpStatus.OK);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Courrier non trouvé");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la modification: " + e.getMessage());
         }
     }
 
@@ -98,8 +128,16 @@ public class CourrierController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCourrier(@PathVariable Long id) {
-        String response = courrierServices.deleteCourrier(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<String> deleteCourrier(@PathVariable Long id, @RequestHeader(value = "X-User-Role", defaultValue = "EMPLOYE") String userRole) {
+        if (!"SECRETAIRE".equals(userRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé: Seuls les secrétaires peuvent supprimer des courriers");
+        }
+        
+        try {
+            String response = courrierServices.deleteCourrier(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la suppression: " + e.getMessage());
+        }
     }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 }

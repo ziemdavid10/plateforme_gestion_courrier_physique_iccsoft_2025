@@ -38,11 +38,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Employe> createEmploye(@RequestBody Employe employe) {
-        // Encoder le mot de passe avant de le sauvegarder
-        if (employe.getPassword() == null || employe.getPassword().isEmpty()) {
-            throw new EmployeExceptions("Password cannot be empty");
-        }
-        employe.setPassword(encoder.encode(employe.getPassword()));
+        // Le service se charge déjà de l'encodage
         return new ResponseEntity<>(us.createEmploye(employe), HttpStatus.CREATED);
     }
 
@@ -64,5 +60,15 @@ public class UserController {
     @DeleteMapping("/{id}")
     public String deleteEmploye(@PathVariable Long id) {
         return us.deleteEmploye(id);
+    }
+    
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Employe> getEmployeByUsername(@PathVariable String username) {
+        try {
+            Employe employe = us.findByUsername(username);
+            return ResponseEntity.ok(employe);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

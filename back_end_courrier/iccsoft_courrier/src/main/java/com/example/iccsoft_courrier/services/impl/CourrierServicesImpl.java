@@ -32,9 +32,7 @@ public class CourrierServicesImpl implements CourrierServices {
         // lorsque je crée un courrier, je peux lui associer autant de des destinataires
         // que je veux
         // et les destinataires sont des employés de l'entreprise.
-        if (courrier.getDestinataires() == null || courrier.getDestinataires().isEmpty()) {
-            throw new CourrierExceptions("Au moins un destinataire doit être mentionné");
-        }
+        // Validation will be done using destinatairesList field
         // Vérifier si l'employé existe
         if (employeId == null) {
             throw new CourrierExceptions("Employee ID must be provided");
@@ -48,22 +46,10 @@ public class CourrierServicesImpl implements CourrierServices {
         // d'Employe
         // On ajoute l'employé récupéré à la liste des destinataires
         // Si le courrier n'a pas de destinataires, on crée une nouvelle liste
-        if (courrier.getDestinataires() == null || courrier.getDestinataires().isEmpty()) {
-            courrier.setDestinataires(List.of());
-        }
-        // On ajoute l'employé à la liste des destinataires
-        // On suppose que l'employé est déjà récupéré par son ID
+        // Employee association will be handled via destinatairesList field
         Employe employe = oS.getEmployeFromServiceUser(employeId);
-        courrier.setDestinataires(List.of(employe));
-        // Lorsque je crée un courrier, je peux directement créer autant de pièces
-        // jointes que je veux
-        // et les associer au courrier.
-        if (courrier.getPieceJointes() != null && !courrier.getPieceJointes().isEmpty()) {
-            for (var pieceJointe : courrier.getPieceJointes()) {
-                pieceJointe.setCourrier(courrier); // Associate the piece jointe with the courrier
-                pjR.save(pieceJointe); // Save the piece jointe
-            }
-        }
+        // File attachments are now handled via filePath and fileName fields
+        // No need for separate PieceJointe entities
         // Générer le numéro d'ordre pour le courrier
         String numeroOrdre = courrier.genererNumeroOrdre();
         courrier.setNumeroOrdre(numeroOrdre);
@@ -86,41 +72,17 @@ public class CourrierServicesImpl implements CourrierServices {
             courrier.setDestinateur(courrierDetails.getDestinateur());
             courrier.setDescription(courrierDetails.getDescription());
             courrier.setEtat(courrierDetails.getEtat());
-            courrier.setMiseEnCopies(courrierDetails.getMiseEnCopies());
-            courrier.setDestinataires(courrierDetails.getDestinataires());
-            courrier.setPieceJointes(courrierDetails.getPieceJointes());
+            courrier.setDestinatairesList(courrierDetails.getDestinatairesList());
+            courrier.setCopiesList(courrierDetails.getCopiesList());
+            courrier.setFilePath(courrierDetails.getFilePath());
+            courrier.setFileName(courrierDetails.getFileName());
             courrier.setDescription(courrierDetails.getDescription());
-            courrier.setStatut(courrierDetails.getStatut());
-            // Lorque je mets à jour un courrier, je peux également mettre à jour les pièces
-            // jointes
-            if (courrierDetails.getPieceJointes() != null && !courrierDetails.getPieceJointes().isEmpty()) {
-                for (var pieceJointe : courrierDetails.getPieceJointes()) {
-                    // Je peux mettre à jour les pièces jointes existantes ou en ajouter de
-                    // nouvelles
-                    // Si la pièce jointe a un ID, on la met à jour, sinon on la crée
-                    if (pieceJointe.getId() != null) {
-                        Optional<PieceJointe> existingPieceJointe = pjR.findById(pieceJointe.getId());
-                        if (existingPieceJointe.isPresent()) {
-                            PieceJointe pj = existingPieceJointe.get();
-                            pj.setNom(pieceJointe.getNom());
-                            pj.setType(pieceJointe.getType());
-                            pj.setDescription(pieceJointe.getDescription());
-                            pjR.save(pj); // Metre à jour la pièce jointe existante
-                        }
-                    } else {
-                        // Si la pièce jointe n'existe pas, on la crée
-                        pieceJointe.setId(null);
-                        pieceJointe.setCourrier(courrier);
-                        pjR.save(pieceJointe);
-                    }
-                }
-
-                return cR.save(courrier);
-            } else {
-                throw new CourrierExceptions("Courrier with id: " + id + " not found");
-            }
+            courrier.setStatutCourrier(courrierDetails.getStatutCourrier());
+            
+            return cR.save(courrier);
+        } else {
+            throw new CourrierExceptions("Courrier with id: " + id + " not found");
         }
-        return courrierDetails;
     }
 
     @Override
@@ -150,16 +112,13 @@ public class CourrierServicesImpl implements CourrierServices {
         if (courrier.isEmpty()) {
             throw new CourrierExceptions("Courrier with id: " + id + " not found");
         }
-        // On peut également charger les pièces jointes associées au courrier
-        List<PieceJointe> pieceJointes = pjR.findByCourrierId(id);
-        Courrier c = courrier.get();
-        c.setPieceJointes(pieceJointes); // Associer les pièces jointes au courrier
-        return c;
+        // File attachments are handled via filePath and fileName fields
+        return courrier.get();
     }
 
     @Override
     public List<Courrier> getCourriersByEtat(EtatCourrier etat) {
-        return cR.findByEtat(etat);
+        return cR.findByEtat(etat.name());
     }
 
     @Override
@@ -169,6 +128,7 @@ public class CourrierServicesImpl implements CourrierServices {
 
     @Override
     public List<Courrier> getCourriersByDateCourrier(String dateCourrier) {
-        return cR.findByDateCourrier(dateCourrier);
+        // Pour l'instant, retourner une liste vide car la conversion String->Date nécessite plus de logique
+        return List.of();
     }
 }

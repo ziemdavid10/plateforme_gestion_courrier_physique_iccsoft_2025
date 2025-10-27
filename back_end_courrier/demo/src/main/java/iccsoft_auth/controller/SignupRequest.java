@@ -6,21 +6,22 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class SignupRequest {
-    @NotBlank
-    @Size(min = 3, max = 20)
+    @NotBlank(message = "Username is required")
+    @Size(max = 20, message = "Username must be less than 20 characters")
     private String username;
-
-    @NotBlank
-    @Size(max = 50)
-    @Email
+    
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
-
+    
+    @NotBlank(message = "Name is required")
+    @Size(max = 20, message = "Name must be less than 20 characters")
     private String name;
-
+    
     private String role;
-
-    @NotBlank
-    @Size(min = 6, max = 40)
+    
+    @NotBlank(message = "Password is required")
+    @Size(max = 120, message = "Password must be less than 120 characters")
     private String password;
 
     public String getUsername() {

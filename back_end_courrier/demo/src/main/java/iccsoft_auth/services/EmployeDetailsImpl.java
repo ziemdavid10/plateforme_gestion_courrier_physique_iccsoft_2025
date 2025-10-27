@@ -67,6 +67,10 @@ public class EmployeDetailsImpl implements UserDetails {
         return email;
     }
 
+    public String getRole() {
+        return authorities.iterator().next().getAuthority();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

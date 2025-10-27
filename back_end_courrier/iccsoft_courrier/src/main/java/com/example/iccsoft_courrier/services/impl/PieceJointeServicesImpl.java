@@ -22,7 +22,7 @@ public class PieceJointeServicesImpl implements PieceJointeServices {
         // Lorsqu'une pièce jointe est créée, elle est associée à un courrier existant.
         // Assurez-vous que la pièce jointe a un courrier associé avant de la
         // sauvegarder
-        if (pieceJointe.getCourrier() == null) {
+        if (pieceJointe.getCourrierId() == null) {
             throw new RuntimeException("PieceJointe must be associated with a Courrier");
         }
         return pieceJointeRepository.save(pieceJointe);
@@ -54,9 +54,9 @@ public class PieceJointeServicesImpl implements PieceJointeServices {
         Optional<PieceJointe> existingPieceJointe = pieceJointeRepository.findById(id);
         if (existingPieceJointe.isPresent()) {
             PieceJointe pj = existingPieceJointe.get();
-            pj.setNom(pieceJointe.getNom());
-            pj.setType(pieceJointe.getType());
-            pj.setDescription(pieceJointe.getDescription());
+            pj.setFileName(pieceJointe.getFileName());
+            pj.setContentType(pieceJointe.getContentType());
+            pj.setFileSize(pieceJointe.getFileSize());
 
             return pieceJointeRepository.save(pj);
         }

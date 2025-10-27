@@ -9,7 +9,6 @@ import com.example.iccsoft_courrier.models.PieceJointe;
 
 @Repository
 public interface PieceJointeRepository extends JpaRepository<PieceJointe, Long> {
-
     List<PieceJointe> findByCourrierId(Long courrierId);
-    
+    void deleteByCourrierId(Long courrierId);
 }

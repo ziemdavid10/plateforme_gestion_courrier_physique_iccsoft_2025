@@ -16,4 +16,8 @@ public interface UserServices {
 
     public Employe getEmployeById(Long id);
     
+    public Employe findByUsername(String username);
+
+    //public Object getAllEmployes();
+    
 }

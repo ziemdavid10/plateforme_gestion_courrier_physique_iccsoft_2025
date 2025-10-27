@@ -32,8 +32,20 @@ public class Courrier {
     @Column(name = "destinateur")
     private String destinateur;
 
+    @Column(name = "destinataire")
+    private String destinataire;
+
+    @Column(name = "destinataires_list")
+    private String destinatairesList; // JSON string of usernames
+
+    @Column(name = "copies_list")
+    private String copiesList; // JSON string of usernames for CC
+
     @Column(name = "date_courrier")
-    private String dateCourrier;
+    private Date dateCourrier;
+
+    @Column(name = "date_entree")
+    private Date dateEntree;
 
     @Column(name = "date_reception")
     private Date dateReception;
@@ -55,46 +67,40 @@ public class Courrier {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "statut")
-    private StatutRecu statut;
+    @Column(name = "statut_courrier")
+    private String statutCourrier;
 
     @Column(name = "etat")
-    private EtatCourrier etat;
+    private String etat;
 
     @Column(name = "numero_ordre")
     private String numeroOrdre;
 
-    @OneToMany(mappedBy = "courrier", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
-    private List<PieceJointe> pieceJointes;
+    // Removed OneToMany relationships to avoid constraint violations
+    // Use filePath and fileName for file attachments
+    // Use destinatairesList and copiesList for recipients
 
-    @OneToMany(mappedBy = "courrier", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
-    private List<MiseEnCopie> miseEnCopies;
+    @Column(name = "file_path")
+    private String filePath; // Path to uploaded file
 
-    @OneToMany
-    private List<Employe> destinataires;
+    @Column(name = "file_name")
+    private String fileName; // Original file name
 
+    // Enums conservés pour compatibilité
     public enum StatutRecu {
-        RECU, EN_ATTENTE, TRAITE, ARCHIVE
+        RECU, EN_ATTENTE, TRAITE, ARCHIVE, IMPORTANT
     }
 
     public enum EtatCourrier {
-        PUBLIC, PRIVE
+        PUBLIC, PRIVE, RECU, EN_ATTENTE, TRAITE, ARCHIVE, LU
     }
 
 
     public String genererNumeroOrdre(){
-        
-        ConcurrentHashMap<String, AtomicInteger> compteurs = null;
-
         LocalDate dateActuelle = LocalDate.now();
         String dataFormatee = dateActuelle.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-        AtomicInteger compteur = compteurs.computeIfAbsent(dataFormatee, k -> new AtomicInteger(0));
-
-        int numeroSequentiel = compteur.incrementAndGet();
-
-        numeroOrdre = String.format("%s-%03d", dataFormatee, numeroSequentiel);
-
+        long timestamp = System.currentTimeMillis() % 1000;
+        numeroOrdre = String.format("CE-%s-%03d", dataFormatee, timestamp);
         return numeroOrdre;
     }
 

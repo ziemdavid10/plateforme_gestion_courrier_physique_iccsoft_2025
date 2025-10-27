@@ -20,11 +20,11 @@ public interface CourrierRepository extends JpaRepository<Courrier, Long> {
 
     List<Courrier> findByObjet(String objet);
 
-    List<Courrier> findByStatut(StatutRecu statut);
+    List<Courrier> findByStatutCourrier(String statutCourrier);
 
-    List<Courrier> findByEtat(EtatCourrier etat);
+    List<Courrier> findByEtat(String etat);
 
     List<Courrier> findByNumeroOrdre(String numeroOrdre);
 
-    List<Courrier> findByDateCourrier(String dateCourrier);
+    List<Courrier> findByDateCourrier(Date dateCourrier);
 }
