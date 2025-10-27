@@ -1,0 +1,50 @@
+services:
+  registry:
+    build: ./back_end_courrier/registry
+    ports:
+      - "8761:8761"
+
+  gateway:
+    build: ./back_end_courrier/gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - registry
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+
+  user-service:
+    build: ./back_end_courrier/iccsoft_user
+    ports:
+      - "8081:8081"
+    depends_on:
+      - registry
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/courrier_db
+
+  courrier-service:
+    build: ./back_end_courrier/iccsoft_courrier
+    ports:
+      - "8082:8082"
+    depends_on:
+      - registry
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/courrier_db
+
+  demo-service:
+    build: ./back_end_courrier/demo
+    ports:
+      - "8083:8083"
+    depends_on:
+      - registry
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+
+  frontend:
+    build: ./front_end_courrier
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
