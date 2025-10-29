@@ -23,6 +23,7 @@ if errorlevel 1 (
 )
 
 echo Starting Docker containers with local MySQL...
+cd /d "%~dp0"
 docker-compose -f docker-compose-local.yml up --build -d
 
 if errorlevel 1 (

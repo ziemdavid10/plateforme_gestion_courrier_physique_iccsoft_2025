@@ -1,9 +1,13 @@
 @echo off
 echo Pulling required Docker images manually...
 
-echo Pulling OpenJDK 17...
-docker pull openjdk:17-jdk-slim
-if errorlevel 1 echo Failed to pull openjdk:17-jdk-slim
+echo Pulling OpenJDK 17 (alternative)...
+docker pull eclipse-temurin:17-jre
+if errorlevel 1 (
+    echo Trying Microsoft registry...
+    docker pull mcr.microsoft.com/openjdk/jdk:17-ubuntu
+    docker tag mcr.microsoft.com/openjdk/jdk:17-ubuntu openjdk:17-jdk-slim
+)
 
 echo Pulling Node 18...
 docker pull node:18-alpine
