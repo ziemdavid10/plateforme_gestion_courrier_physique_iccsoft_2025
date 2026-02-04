@@ -17,14 +17,19 @@ import org.springframework.test.web.servlet.MockMvc; // Framework de test pour l
 import java.util.Arrays; // Utilitaire pour créer des listes
 import java.util.Date; // Classe pour les dates
 
+import org.springframework.test.context.TestPropertySource;
 // Importations statiques pour les matchers et builders de test
 import static org.mockito.ArgumentMatchers.*; // Matchers pour les arguments Mockito
-import static org.mockito.Mockito.eq; // Matcher d'égalité Mockito
-import static org.mockito.Mockito.when; // Configuration des comportements des mocks
+import static org.mockito.Mockito.*; // Configuration des comportements des mocks
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*; // Builders pour les requêtes HTTP de test
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*; // Matchers pour les résultats de test
 // Annotation pour tester uniquement la couche web (contrôleurs) sans charger tout le contexte Spring
 @WebMvcTest(controllers = CourrierManagementController.class)
+@TestPropertySource(properties = {
+    "eureka.client.enabled=false",
+    "eureka.client.register-with-eureka=false",
+    "eureka.client.fetch-registry=false"
+})
 // Configuration de MockMvc sans les filtres de sécurité pour simplifier les tests
 @AutoConfigureMockMvc(addFilters = false)
 class CourrierControllerTest {
@@ -48,6 +53,10 @@ class CourrierControllerTest {
     // Mock du template de messagerie pour les notifications en temps réel
     @MockBean
     private org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    
+    // Mock du service de notification par email
+    @MockBean
+    private com.example.iccsoft_courrier.services.EmailNotificationService emailNotificationService;
 
     // Injection de l'ObjectMapper pour la conversion JSON
     @Autowired
@@ -86,15 +95,17 @@ class CourrierControllerTest {
     // Test de création d'un courrier avec le rôle secrétaire
     @Test
     void createCourrier_WithSecretaireRole_ShouldCreateCourrier() throws Exception {
-        // Configuration des mocks pour simuler une insertion réussie en base de données
-        when(jdbcTemplate.update(any(String.class), (Object[]) any())).thenReturn(1); // Simulation d'une ligne affectée
-        when(jdbcTemplate.queryForObject(any(String.class), eq(Long.class), any(String.class))).thenReturn(1L); // Simulation de récupération de l'ID généré
-
+        // Mock générique pour tous les appels JDBC
+        when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+        when(jdbcTemplate.update(anyString(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(1);
+        when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), anyString())).thenReturn(1L);
+        
         // Exécution d'une requête POST avec des données JSON valides
         mockMvc.perform(post("/v1/api/secretary/courriers")
-                .contentType(MediaType.APPLICATION_JSON) // Définition du type de contenu JSON
-                .content("{\"objet\":\"Test\",\"destinataire\":\"test\",\"destinateur\":\"admin\",\"description\":\"test\"}")) // Corps de la requête JSON
-                .andExpect(status().isOk()); // Vérification du succès de la création
+                .header("X-User-Id", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"objet\":\"Test\",\"destinataire\":\"test\",\"destinateur\":\"admin\",\"description\":\"test\"}"))
+                .andExpect(status().isOk());
     }
 
     // Test de création d'un courrier avec des données manquantes
@@ -111,11 +122,13 @@ class CourrierControllerTest {
     @Test
     void updateCourrier_ShouldUpdateStatus() throws Exception {
         // Configuration des mocks pour simuler une mise à jour réussie
-        when(jdbcTemplate.update(any(String.class), (Object[]) any())).thenReturn(1); // Simulation d'une ligne mise à jour
         when(courrierServices.getCourrierById(1L)).thenReturn(testCourrier); // Simulation de récupération du courrier existant
+        when(courrierServices.updateCourrier(any(Courrier.class), eq(1L))).thenReturn(testCourrier); // Mock update
+        when(jdbcTemplate.update(any(String.class), eq(1L), any(), any(), any(), any())).thenReturn(1); // Mock pour l'historique
 
         // Exécution d'une requête PUT pour mettre à jour le statut du courrier avec l'ID 1
         mockMvc.perform(put("/v1/api/secretary/courriers/1/status")
+                .header("X-User-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON) // Type de contenu JSON
                 .content("{\"etat\":\"TRAITE\"}")) // Nouveau statut à appliquer
                 .andExpect(status().isOk()); // Vérification du succès de la mise à jour

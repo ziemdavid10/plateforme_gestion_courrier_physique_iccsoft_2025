@@ -6,6 +6,7 @@ import com.example.iccsoft_courrier.dto.CourrierDTO; // Objet de transfert de do
 import com.example.iccsoft_courrier.models.Courrier; // Modèle de données Courrier
 import com.example.iccsoft_courrier.services.CourrierServices; // Service métier pour les courriers
 import com.example.iccsoft_courrier.services.CourrierStatusService; // Service de gestion des statuts
+import com.example.iccsoft_courrier.services.EmailNotificationService; // Service de notification email
 
 // Importations Spring Framework
 import org.springframework.beans.factory.annotation.Autowired; // Injection de dépendances
@@ -51,6 +52,10 @@ public class CourrierManagementController {
     // Injection du service de gestion des statuts de courrier
     @Autowired
     private CourrierStatusService statusService;
+
+    // Injection du service de notification par email
+    @Autowired
+    private EmailNotificationService emailNotificationService;
 
 
 
@@ -173,9 +178,24 @@ public class CourrierManagementController {
                 String historySql = "INSERT INTO courrier_status_history (courrier_id, ancien_statut, nouveau_statut, utilisateur, date_changement, commentaire) VALUES (?, ?, ?, ?, NOW(), ?)";
                 jdbcTemplate.update(historySql, courrierId, null, "RECU", userId != null ? userId : "system", "Courrier créé dans le système");
                 
+                // Créer l'objet Courrier pour la notification email
+                Date now = new Date(); // Date actuelle pour les timestamps
+                Courrier newCourrier = new Courrier();
+                newCourrier.setId(courrierId);
+                newCourrier.setObjet(objet);
+                newCourrier.setDestinataire(destinataire);
+                newCourrier.setDestinateur(destinateur);
+                newCourrier.setDescription(description);
+                newCourrier.setNumeroOrdre(numeroOrdre);
+                newCourrier.setDateReception(now);
+                newCourrier.setDestinatairesList(destinatairesList);
+                newCourrier.setCopiesList(copiesList);
+                
+                // Envoyer les notifications email
+                emailNotificationService.sendNewCourrierNotification(newCourrier);
+                
                 // Construction de la réponse avec toutes les informations du courrier créé
                 Map<String, Object> response = new HashMap<>();
-                Date now = new Date(); // Date actuelle pour les timestamps
                 response.put("id", courrierId); // ID généré
                 response.put("objet", objet); // Objet du courrier
                 response.put("destinataire", destinataire); // Destinataire principal

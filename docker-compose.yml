@@ -55,8 +55,10 @@ services:
       - "8083:8083"
     depends_on:
       - registry
+      - mysql
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/courrier_db
 
   frontend:
     build: ./front_end_courrier
@@ -64,6 +66,7 @@ services:
       - "80:80"
     depends_on:
       - gateway
+    restart: unless-stopped
 
 volumes:
   mysql_data:

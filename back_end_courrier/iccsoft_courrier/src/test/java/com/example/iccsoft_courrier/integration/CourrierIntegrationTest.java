@@ -11,6 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.springframework.test.context.TestPropertySource;
+
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,6 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureWebMvc
+@TestPropertySource(properties = {
+    "eureka.client.enabled=false",
+    "eureka.client.register-with-eureka=false",
+    "eureka.client.fetch-registry=false"
+})
 class CourrierIntegrationTest {
 
     @Autowired
@@ -43,12 +50,11 @@ class CourrierIntegrationTest {
         courrier.setStatutCourrier("Public");
 
         // Test création avec rôle SECRETAIRE
-        mockMvc.perform(post("/v3/courrier")
-                .param("employeId", "1")
-                .header("X-User-Role", "SECRETAIRE")
+        mockMvc.perform(post("/v1/api/secretary/courriers")
+                .header("X-User-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(courrier)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
 
         // Test accès refusé avec rôle EMPLOYE
         mockMvc.perform(post("/v3/courrier")
