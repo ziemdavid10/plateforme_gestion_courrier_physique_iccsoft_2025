@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @RestController
@@ -119,7 +121,9 @@ public class AdminUserController {
                     case SECRETAIRE -> secretaires++;
                     case ADMINISTRATEUR -> administrateurs++;
                 }
-                if (user.getIsActive() == null || user.getIsActive()) {
+                if (user.getIsActive() == null 
+                // || user.getIsActive()
+                ) {
                     actifs++;
                 }
             }

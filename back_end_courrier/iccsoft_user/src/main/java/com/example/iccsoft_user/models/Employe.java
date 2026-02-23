@@ -76,4 +76,9 @@ public class Employe {
     protected void onUpdate() {
         this.updatedAt = new Date();
     }
+
+    public Object getIsActive() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getIsActive'");
+    }
 }
