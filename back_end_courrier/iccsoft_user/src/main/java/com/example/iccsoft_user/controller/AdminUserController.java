@@ -100,4 +100,39 @@ public class AdminUserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getUserStats() {
+        try {
+            List<Employe> users = userServices.all();
+            Map<String, Object> stats = new HashMap<>();
+            
+            int total = users.size();
+            int employes = 0;
+            int secretaires = 0;
+            int administrateurs = 0;
+            int actifs = 0;
+            
+            for (Employe user : users) {
+                switch (user.getRole()) {
+                    case EMPLOYE -> employes++;
+                    case SECRETAIRE -> secretaires++;
+                    case ADMINISTRATEUR -> administrateurs++;
+                }
+                if (user.getIsActive() == null || user.getIsActive()) {
+                    actifs++;
+                }
+            }
+            
+            stats.put("total", total);
+            stats.put("employes", employes);
+            stats.put("secretaires", secretaires);
+            stats.put("administrateurs", administrateurs);
+            stats.put("actifs", actifs);
+            
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("total", 0));
+        }
+    }
 }

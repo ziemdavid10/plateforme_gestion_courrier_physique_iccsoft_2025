@@ -354,6 +354,33 @@ public class CourrierManagementController {
     }
 
     /**
+     * Récupère les statistiques des courriers par état
+     * @return Statistiques des courriers groupées par état
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getCourrierStats() {
+        try {
+            String sql = "SELECT etat, COUNT(*) as count FROM courriers GROUP BY etat";
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+            
+            Map<String, Object> stats = new HashMap<>();
+            int total = 0;
+            
+            for (Map<String, Object> row : results) {
+                String etat = (String) row.get("etat");
+                Long count = (Long) row.get("count");
+                stats.put(etat.toLowerCase(), count);
+                total += count.intValue();
+            }
+            
+            stats.put("total", total);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("total", 0));
+        }
+    }
+
+    /**
      * Supprime définitivement un courrier du système
      * @param id Identifiant du courrier à supprimer
      * @return Réponse vide avec statut de succès
